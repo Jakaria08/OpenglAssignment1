@@ -3,3 +3,11 @@
 	<GL/glew.h>
 	<GL/freeglut.h>
 
+1505719026 source:/home/jakaria/OpenglAssignment1/main.cpp
+	<GL/glew.h>
+	<GL/freeglut.h>
+	<glm/glm.hpp>
+	<fstream>
+	<iostream>
+	<string.h>
+
