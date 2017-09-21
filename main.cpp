@@ -1,31 +1,34 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
-#include <glm/glm.hpp>
+//#include <glm/glm.hpp>
 
 #include <fstream>
 #include <iostream>
 #include <string.h>
 #include <vector>
+#include <sstream>
+#include <iomanip>
 
 using namespace std;
 
+string line;
+string value;
 
-std::vector< unsigned int > vertexIndices, uvIndices, normalIndices;
-std::vector< glm::vec3 > temp_vertices;
-std::vector< glm::vec2 > temp_uvs;
-std::vector< glm::vec3 > temp_normals;
+vector<float> Indices;
+vector<vector<int> > Faces;
 
 void drawScene(void);
 void resize(int, int);
 void keyInput(unsigned char, int, int);
 void setup(void);
-int readFile(char* object);
+int readFile(char* object); // Loader Function
+void outputObject();
 
 int main(int argc, char **argv)
 {
     if(argv[1]==NULL)
     {
-        printf("Please Specify Object File!");
+        printf("\n\nPlease Specify Object File!\n\n");
     }
     else
     {
@@ -49,31 +52,117 @@ int main(int argc, char **argv)
     glutMainLoop();
 }
 
-int readFile(char* object)
+void outputObject()
 {
-    char path[20];
-    strcat(path,"a1files//");
-    strcat(path,object);
+    cout<< "\n\n w is pressed. File writing initiated...........\n\n ";
 
+    ofstream outObj;
 
-    FILE * file = fopen(path, "r");
-    if( file == NULL )
+    outObj.open("out.obj");
+
+    outObj << fixed << setprecision(6);
+
+    outObj << "v" << " " << Indices[0] << " ";
+
+    for(long int i=1; i<Indices.size(); i++)
     {
-        printf("Invalid File\n");
-        return 1;
+        if((i%3)==0)
+        {
+            outObj << "\n" << "v" << " ";
+        }
+
+        outObj << Indices[i] << " ";
+
     }
 
-    while( 1 )
-    {
+    outObj << "\n";
 
-        char lineHeader[128];
-        // read the first word of the line
-        int res = fscanf(file, "%s", lineHeader);
-        if (res == EOF)
-            break;
+    for(long int j=0; j<Faces.size(); j++)
+    {
+        outObj << "f" << " ";
+
+        for(int k=0; k<Faces[j].size(); k++)
+        {
+            outObj << Faces[j][k] << " ";
+        }
+
+        outObj << "\n";
+
     }
+
+    outObj.close();
+
+    cout<< "\n\nout.obj file has been created! \n\n";
+
 }
 
+int readFile(char* object)
+{
+    stringstream ss;
+    ss << "a1files//" << object;
+    string path = ss.str();
+
+    ifstream file;
+
+    file.open(path.c_str());
+
+    if (file.is_open())
+    {
+        cout << "\n\nFile successfully opened !! \n\n";
+
+    }
+    else
+    {
+        cout << "\n\nError opening file \n\n";
+    }
+
+    cout << "\n\nFile reading started..........\n\n";
+
+    while(getline(file,line))
+    {
+
+        istringstream iss(line);
+
+        iss >> value;
+
+        if(value[0] =='v') // Reading Indices
+        {
+            float Ivalue;
+
+            while(iss >> Ivalue)
+            {
+
+                Indices.push_back(Ivalue);
+
+
+            }
+        }
+
+        if(value[0] == 'f') // Reading Faces
+        {
+
+            int fValue;
+            vector<int> temp;
+
+            while(iss >> fValue)
+            {
+                temp.push_back(fValue);
+            }
+
+            Faces.push_back(temp);
+            temp.clear();
+
+        }
+
+    }
+
+
+    file.close();
+
+    cout << "\n\nFile Reading Completed ! \n\n";
+
+    return 0;
+}
 
 void setup(void)
 {
@@ -110,6 +199,9 @@ void keyInput(unsigned char key, int x, int y)
     // Press escape to exit.
     case 27:
         exit(0);
+        break;
+    case 'w':
+        outputObject();
         break;
     default:
         break;
