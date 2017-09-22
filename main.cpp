@@ -14,6 +14,10 @@ using namespace std;
 string line;
 string value;
 
+float meanx=0.0;
+float meany=0.0;
+float meanz=0.0;
+
 vector<float> Indices;
 vector<vector<int> > Faces;
 static unsigned int displayList; // List index.
@@ -129,12 +133,26 @@ int readFile(char* object)
         if(value[0] =='v') // Reading Indices
         {
             float Ivalue;
+            int i = 0;
 
             while(iss >> Ivalue)
             {
 
                 Indices.push_back(Ivalue);
 
+                if(i==0)
+                {
+                    meanx += Ivalue;
+                }
+                else if(i==1)
+                {
+                    meany += Ivalue;
+                }
+                else
+                {
+                    meanz += Ivalue;
+                }
+                i++;
 
             }
         }
@@ -162,6 +180,8 @@ int readFile(char* object)
 
     cout << "\n\nFile Reading Completed ! \n\n";
 
+/////////////////// vertex array
+
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(3, GL_FLOAT, 0, &Indices[0]); // Vertex Array
 
@@ -176,13 +196,24 @@ int readFile(char* object)
 
         for (unsigned int n=0; n<Faces[m].size(); n++)
         {
-				glArrayElement(Faces[m][n]);
-				//cout<<Faces[m][n];
+            glArrayElement(Faces[m][n]);
+            //cout<<Faces[m][n];
         }
 
         glEnd();
     }
     glEndList();
+
+    ///////////////////////////////////////////////////////////////////// mean
+
+   // cout<<meanx<<" "<<meany<<" "<<meanz;
+
+    meanx = meanx/(Indices.size()/3);
+    meany = meany/(Indices.size()/3);
+    meanz = meanz/(Indices.size()/3);
+
+    cout<<meanx<<" "<<meany<<" "<<meanz;
+
 
     return 0;
 }
