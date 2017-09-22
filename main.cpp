@@ -8,6 +8,7 @@
 #include <vector>
 #include <sstream>
 #include <iomanip>
+#include <algorithm>
 
 using namespace std;
 
@@ -111,6 +112,9 @@ void outputObject()
 
 int readFile(char* object)
 {
+
+    glClearColor(0.0, 0.0, 0.0, 0.0);
+
     stringstream ss;
     ss << "a1files//" << object;
     string path = ss.str();
@@ -248,14 +252,34 @@ int readFile(char* object)
          if(translated>maxz) {maxz = translated;}
        }
 
-       Indices[i]=translated;
+       Indices[i]=translated;  /////////////Index value changed
 
 
 
     }
 
-cout<<minx<<" "<< miny <<" "<< minz;
-cout<<maxx<<" "<< maxy <<" "<< maxz;
+//cout<<minx<<" "<< miny <<" "<< minz;
+//cout<<maxx<<" "<< maxy <<" "<< maxz;
+//cout<<"Index "<<Indices[1]<<" "<<Indices[2]<<" "<<Indices[3]<<" ";
+
+////////////////////////scaling //////////////////////////////////////////
+
+float difx = maxx-minx;
+float dify = maxy-miny;
+float difz = maxz-minz;
+
+float scal = max(max(difx, dify), difz);
+
+
+cout<<" "<<scal;
+
+    for(unsigned long int i=0;i<Indices.size();i++)
+    {
+      Indices[i]=((Indices[i]/scal)*1.25); /////////////scaling factor 1.25
+
+    }
+
+    //cout<<"Index "<<Indices[1]<<" "<<Indices[2]<<" "<<Indices[3]<<" ";
 
 
     return 0;
@@ -272,9 +296,9 @@ void drawScene(void)
 {
     glClear(GL_COLOR_BUFFER_BIT);
     glLoadIdentity();
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    glColor3f(1.0, 0.0, 1.0);
-    glTranslatef(1.0, 1.0, -4.0);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glColor3f(0.0, 0.0, 0.0);
+    glTranslatef(0.0, 0.0, -10.0);
     glCallList(displayList);
     glFlush();
 }
@@ -284,7 +308,7 @@ void resize(int w, int h)
     glViewport(0, 0, w, h);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glFrustum(-2.0, 2.0, -2.0, 2.0, 0.1, 10.0);
+    glOrtho(-1.0, 1.0, -1.0, 1.0, 8, 100.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 }
