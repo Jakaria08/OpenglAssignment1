@@ -16,6 +16,7 @@ string value;
 
 vector<float> Indices;
 vector<vector<int> > Faces;
+static unsigned int displayList; // List index.
 
 void drawScene(void);
 void resize(int, int);
@@ -64,7 +65,7 @@ void outputObject()
 
     outObj << "v" << " " << Indices[0] << " ";
 
-    for(long int i=1; i<Indices.size(); i++)
+    for(unsigned long int i=1; i<Indices.size(); i++)
     {
         if((i%3)==0)
         {
@@ -77,11 +78,11 @@ void outputObject()
 
     outObj << "\n";
 
-    for(long int j=0; j<Faces.size(); j++)
+    for(unsigned long int j=0; j<Faces.size(); j++)
     {
         outObj << "f" << " ";
 
-        for(int k=0; k<Faces[j].size(); k++)
+        for(unsigned int k=0; k<Faces[j].size(); k++)
         {
             outObj << Faces[j][k] << " ";
         }
@@ -161,24 +162,46 @@ int readFile(char* object)
 
     cout << "\n\nFile Reading Completed ! \n\n";
 
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glVertexPointer(3, GL_FLOAT, 0, &Indices[0]); // Vertex Array
+
+    displayList = glGenLists(1);
+    glNewList(displayList, GL_COMPILE);
+
+
+    for(unsigned long int m = 0; m<Faces.size(); m++)
+    {
+
+        glBegin(GL_TRIANGLE_STRIP); // drawing
+
+        for (unsigned int n=0; n<Faces[m].size(); n++)
+        {
+				glArrayElement(Faces[m][n]);
+				//cout<<Faces[m][n];
+        }
+
+        glEnd();
+    }
+    glEndList();
+
     return 0;
 }
 
 void setup(void)
 {
-    glClearColor(1.0, 1.0, 1.0, 0.0);
+    glClearColor(0.0, 0.0, 0.0, 0.0);
+
+
 }
 
 void drawScene(void)
 {
     glClear(GL_COLOR_BUFFER_BIT);
-    glColor3f(0.0, 0.0, 0.0);
-    glBegin(GL_POLYGON);
-    glVertex3f(20.0, 20.0, 0.0);
-    glVertex3f(80.0, 20.0, 0.0);
-    glVertex3f(80.0, 80.0, 0.0);
-    glVertex3f(20.0, 80.0, 0.0);
-    glEnd();
+    glLoadIdentity();
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glColor3f(1.0, 0.0, 1.0);
+    glTranslatef(1.0, 1.0, -4.0);
+    glCallList(displayList);
     glFlush();
 }
 
@@ -187,7 +210,7 @@ void resize(int w, int h)
     glViewport(0, 0, w, h);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(0.0, 100.0, 0.0, 100.0, -1.0, 1.0);
+    glFrustum(-2.0, 2.0, -2.0, 2.0, 0.1, 10.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 }
