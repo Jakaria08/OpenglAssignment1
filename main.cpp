@@ -18,6 +18,14 @@ float meanx=0.0;
 float meany=0.0;
 float meanz=0.0;
 
+float minx=0.0;
+float miny=0.0;
+float minz=0.0;
+
+float maxx=0.0;
+float maxy=0.0;
+float maxz=0.0;
+
 vector<float> Indices;
 vector<vector<int> > Faces;
 static unsigned int displayList; // List index.
@@ -213,6 +221,41 @@ int readFile(char* object)
     meanz = meanz/(Indices.size()/3);
 
     cout<<meanx<<" "<<meany<<" "<<meanz;
+
+    /////////////////////////////////////////////////////////////////////////min-max
+
+    float translated;
+
+    for(unsigned long int i=0; i<Indices.size(); i++)
+    {
+
+       if((i%3)==0)
+       {
+         translated = Indices[i]-meanx;
+         if(translated<minx) {minx = translated;}
+         if(translated>maxx) {maxx = translated;}
+       }
+       else if((i%3)==1)
+       {
+         translated = Indices[i]-meany;
+         if(translated<miny) {miny = translated;}
+         if(translated>maxy) {maxy = translated;}
+       }
+       else
+       {
+         translated = Indices[i]-meanz;
+         if(translated<minz) {minz = translated;}
+         if(translated>maxz) {maxz = translated;}
+       }
+
+       Indices[i]=translated;
+
+
+
+    }
+
+cout<<minx<<" "<< miny <<" "<< minz;
+cout<<maxx<<" "<< maxy <<" "<< maxz;
 
 
     return 0;
