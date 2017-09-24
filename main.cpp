@@ -15,6 +15,8 @@ using namespace std;
 string line;
 string value;
 
+int isOrtho = 1;
+
 float meanx=0.0;
 float meany=0.0;
 float meanz=0.0;
@@ -29,6 +31,7 @@ float maxz=0.0;
 
 vector<float> Indices;
 vector<vector<int> > Faces;
+
 static unsigned int displayList; // List index.
 
 void drawScene(void);
@@ -37,17 +40,11 @@ void keyInput(unsigned char, int, int);
 void setup(void);
 int readFile(char* object); // Loader Function
 void outputObject();
+void Orthographic_Projection();
+void Perspective_Projection();
 
 int main(int argc, char **argv)
 {
-    if(argv[1]==NULL)
-    {
-        printf("\n\nPlease Specify Object File!\n\n");
-    }
-    else
-    {
-        readFile(argv[1]);
-    }
 
     glutInit(&argc, argv);
     glutInitContextVersion(2, 1);
@@ -58,12 +55,52 @@ int main(int argc, char **argv)
     glutInitWindowPosition(100, 100);
     glutCreateWindow("ModelViewer");
 
+
+
     glutDisplayFunc(drawScene);
     glutReshapeFunc(resize);
     glutKeyboardFunc(keyInput);
+    if(argv[1]==NULL)
+    {
+        printf("\n\nPlease Specify Object File!\n\n");
+    }
+    else
+    {
+        readFile(argv[1]);
+    }
     setup();
 
     glutMainLoop();
+}
+
+void Orthographic_Projection()
+{
+    cout<<"Orthographic Projection"<<"\n";
+    cout.flush();
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+
+    glOrtho(-1.0, 1.0, -1.0, 1.0, 8, 100.0); // Orthographic Projection
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glutPostRedisplay();
+
+}
+
+void Perspective_Projection()
+{
+    cout<<"Perspective_Projection"<<"\n";
+    cout.flush();
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+
+    glFrustum(-1.0, 1.0, -1.0, 1.0, 8, 100.0); // Orthographic Projection
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glutPostRedisplay();
+
 }
 
 void outputObject()
@@ -112,8 +149,6 @@ void outputObject()
 
 int readFile(char* object)
 {
-
-    glClearColor(0.0, 0.0, 0.0, 0.0);
 
     stringstream ss;
     ss << "a1files//" << object;
@@ -192,67 +227,71 @@ int readFile(char* object)
 
     cout << "\n\nFile Reading Completed ! \n\n";
 
-/////////////////// vertex array
-
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(3, GL_FLOAT, 0, &Indices[0]); // Vertex Array
-
-    displayList = glGenLists(1);
-    glNewList(displayList, GL_COMPILE);
 
 
-    for(unsigned long int m = 0; m<Faces.size(); m++)
-    {
+    return 0;
+}
 
-        glBegin(GL_TRIANGLE_STRIP); // drawing
+void setup(void)
+{
+    glClearColor(0.0, 0.0, 0.0, 0.0);
 
-        for (unsigned int n=0; n<Faces[m].size(); n++)
-        {
-            glArrayElement(Faces[m][n]);
-            //cout<<Faces[m][n];
-        }
 
-        glEnd();
-    }
-    glEndList();
+/////////////////////////////////////////// mean ///////////////////////////////////////
 
-    ///////////////////////////////////////////////////////////////////// mean
-
-   // cout<<meanx<<" "<<meany<<" "<<meanz;
+    // cout<<meanx<<" "<<meany<<" "<<meanz;
 
     meanx = meanx/(Indices.size()/3);
     meany = meany/(Indices.size()/3);
     meanz = meanz/(Indices.size()/3);
 
-    cout<<meanx<<" "<<meany<<" "<<meanz;
+    //cout<<meanx<<" "<<meany<<" "<<meanz;
 
-    /////////////////////////////////////////////////////////////////////////min-max
+    /////////////////////////////////////min-max nad traslation to the origin////////////////////////////
 
     float translated;
 
     for(unsigned long int i=0; i<Indices.size(); i++)
     {
 
-       if((i%3)==0)
-       {
-         translated = Indices[i]-meanx;
-         if(translated<minx) {minx = translated;}
-         if(translated>maxx) {maxx = translated;}
-       }
-       else if((i%3)==1)
-       {
-         translated = Indices[i]-meany;
-         if(translated<miny) {miny = translated;}
-         if(translated>maxy) {maxy = translated;}
-       }
-       else
-       {
-         translated = Indices[i]-meanz;
-         if(translated<minz) {minz = translated;}
-         if(translated>maxz) {maxz = translated;}
-       }
+        if((i%3)==0)
+        {
+            translated = Indices[i]-meanx;
+            if(translated<minx)
+            {
+                minx = translated;
+            }
+            if(translated>maxx)
+            {
+                maxx = translated;
+            }
+        }
+        else if((i%3)==1)
+        {
+            translated = Indices[i]-meany;
+            if(translated<miny)
+            {
+                miny = translated;
+            }
+            if(translated>maxy)
+            {
+                maxy = translated;
+            }
+        }
+        else
+        {
+            translated = Indices[i]-meanz;
+            if(translated<minz)
+            {
+                minz = translated;
+            }
+            if(translated>maxz)
+            {
+                maxz = translated;
+            }
+        }
 
-       Indices[i]=translated;  /////////////Index value changed
+        Indices[i]=translated;  /////////////Index value changed
 
 
 
@@ -264,30 +303,51 @@ int readFile(char* object)
 
 ////////////////////////scaling //////////////////////////////////////////
 
-float difx = maxx-minx;
-float dify = maxy-miny;
-float difz = maxz-minz;
+    float difx = maxx-minx;
+    float dify = maxy-miny;
+    float difz = maxz-minz;
 
-float scal = max(max(difx, dify), difz);
+    float scal = max(max(difx, dify), difz);
 
 
-cout<<" "<<scal;
+//cout<<" "<<scal;
 
-    for(unsigned long int i=0;i<Indices.size();i++)
+    for(unsigned long int i=0; i<Indices.size(); i++)
     {
-      Indices[i]=((Indices[i]/scal)*1.25); /////////////scaling factor 1.25
+        Indices[i]=((Indices[i]/scal)*1.25); /////////////scaling factor 1.25
 
     }
 
     //cout<<"Index "<<Indices[1]<<" "<<Indices[2]<<" "<<Indices[3]<<" ";
 
+    //////////////////////////////////// Vertex Array////////////////////////////////////////
 
-    return 0;
-}
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glVertexPointer(3, GL_FLOAT, 0, &Indices[0]); // Vertex Array
 
-void setup(void)
-{
-    glClearColor(0.0, 0.0, 0.0, 0.0);
+    displayList = glGenLists(1);
+    glNewList(displayList, GL_COMPILE);
+
+// Previous four line is taken from the code repository of the reference book
+//https://github.com/slackmoehrle/Computer-Graphics-Through-OpenGL-2nd/blob/master/Chapter3/HelixList/helixList.cpp
+
+    for(unsigned long int m = 0; m<Faces.size(); m++)
+    {
+
+        //glDrawElements(GL_TRIANGLE_FAN,GLsizei(Faces[m].size()),GL_INT,&Faces[m][0]);
+
+        glBegin(GL_TRIANGLE_STRIP); // drawing
+
+        for (unsigned int n=0; n<Faces[m].size(); n++)
+        {
+
+            glArrayElement(Faces[m][n]-1); ///// index in face value started from 1 and in vector I stored from 0;
+            //cout<<Faces[m][n]<<" ";
+        }
+        glEnd();
+    }
+    glEndList();
+
 
 
 }
@@ -296,8 +356,8 @@ void drawScene(void)
 {
     glClear(GL_COLOR_BUFFER_BIT);
     glLoadIdentity();
+    glColor3f(1.0, 1.0, 1.0);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    glColor3f(0.0, 0.0, 0.0);
     glTranslatef(0.0, 0.0, -10.0);
     glCallList(displayList);
     glFlush();
@@ -306,12 +366,9 @@ void drawScene(void)
 void resize(int w, int h)
 {
     glViewport(0, 0, w, h);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(-1.0, 1.0, -1.0, 1.0, 8, 100.0);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+    Orthographic_Projection();
 }
+
 
 void keyInput(unsigned char key, int x, int y)
 {
@@ -323,6 +380,12 @@ void keyInput(unsigned char key, int x, int y)
         break;
     case 'w':
         outputObject();
+        break;
+    case 'v':
+        Orthographic_Projection();
+        break;
+    case 'V':
+        Perspective_Projection();
         break;
     default:
         break;
