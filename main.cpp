@@ -17,6 +17,10 @@ string value;
 
 int isOrtho = 1;
 
+float xtrans = 0.0;
+float ytrans = 0.0;
+float ztrans = 0.0;
+
 float meanx=0.0;
 float meany=0.0;
 float meanz=0.0;
@@ -37,6 +41,7 @@ static unsigned int displayList; // List index.
 void drawScene(void);
 void resize(int, int);
 void keyInput(unsigned char, int, int);
+void Arrowkeys(int, int, int);
 void setup(void);
 int readFile(char* object); // Loader Function
 void outputObject();
@@ -60,6 +65,7 @@ int main(int argc, char **argv)
     glutDisplayFunc(drawScene);
     glutReshapeFunc(resize);
     glutKeyboardFunc(keyInput);
+    glutSpecialFunc(Arrowkeys);
     if(argv[1]==NULL)
     {
         printf("\n\nPlease Specify Object File!\n\n");
@@ -359,8 +365,12 @@ void drawScene(void)
     glColor3f(1.0, 1.0, 1.0);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glTranslatef(0.0, 0.0, -10.0);
+    glTranslatef(xtrans, 0.0, 0.0);
+    glTranslatef(0.0, ytrans, 0.0);
+    glTranslatef(0.0, 0.0, ztrans);
     glCallList(displayList);
     glFlush();
+    glutPostRedisplay();
 }
 
 void resize(int w, int h)
@@ -387,7 +397,42 @@ void keyInput(unsigned char key, int x, int y)
     case 'V':
         Perspective_Projection();
         break;
+    case 'n':
+        ztrans -= 0.1;
+        break;
+    case 'N':
+        ztrans += 0.1;
+        break;
     default:
         break;
+
     }
+}
+
+void Arrowkeys(int key, int x, int y)
+{
+switch(key)
+    {
+    // Press escape to exit.
+    case 27:
+        exit(0);
+        break;
+    case GLUT_KEY_LEFT:
+        xtrans -= 0.1;
+        break;
+    case GLUT_KEY_RIGHT:
+        xtrans += 0.1;
+        break;
+    case GLUT_KEY_DOWN:
+        ytrans -= 0.1;
+        break;
+    case GLUT_KEY_UP:
+        ytrans += 0.1;
+        break;
+    default:
+        break;
+
+        glutPostRedisplay();
+    }
+
 }
