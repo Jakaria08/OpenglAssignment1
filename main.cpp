@@ -15,15 +15,22 @@ using namespace std;
 string line;
 string value;
 
-int isOrtho = 1;
-
 float xtrans = 0.0;
 float ytrans = 0.0;
 float ztrans = 0.0;
 
+float xtransCam = 0.0;
+float ytransCam = 0.0;
+float ztransCam = 0.0;
+
+int xrotCam = 0.0;
+int yrotCam = 0.0;
+int zrotCam = 0.0;
+
 int xrot = 0.0;
 int yrot = 0.0;
 int zrot = 0.0;
+
 
 float meanx=0.0;
 float meany=0.0;
@@ -427,6 +434,24 @@ void keyInput(unsigned char key, int x, int y)
         break;
     case 'R':
         zrot += 10;
+        break;
+    case 'd':
+        xtransCam -= 0.1;
+        break;
+    case 'D':
+        xtransCam += 0.1;
+        break;
+    case 'c':
+        ytransCam -= 0.1;
+        break;
+    case 'C':
+        ytransCam += 0.1;
+        break;
+    case 'z':
+        ytransCam -= 0.1;
+        break;
+    case 'Z':
+        ytransCam += 0.1;
         break;
     default:
         break;
