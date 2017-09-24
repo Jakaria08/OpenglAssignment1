@@ -21,6 +21,10 @@ float xtrans = 0.0;
 float ytrans = 0.0;
 float ztrans = 0.0;
 
+int xrot = 0.0;
+int yrot = 0.0;
+int zrot = 0.0;
+
 float meanx=0.0;
 float meany=0.0;
 float meanz=0.0;
@@ -368,6 +372,9 @@ void drawScene(void)
     glTranslatef(xtrans, 0.0, 0.0);
     glTranslatef(0.0, ytrans, 0.0);
     glTranslatef(0.0, 0.0, ztrans);
+    glRotatef(xrot,1.0,0.0,0.0);
+    glRotatef(yrot,0.0,1.0,0.0);
+    glRotatef(zrot,0.0,0.0,1.0);
     glCallList(displayList);
     glFlush();
     glutPostRedisplay();
@@ -402,6 +409,24 @@ void keyInput(unsigned char key, int x, int y)
         break;
     case 'N':
         ztrans += 0.1;
+        break;
+    case 'p':
+        xrot -= 10;
+        break;
+    case 'P':
+        xrot += 10;
+        break;
+    case 'y':
+        yrot -= 10;
+        break;
+    case 'Y':
+        yrot += 10;
+        break;
+    case 'r':
+        zrot -= 10;
+        break;
+    case 'R':
+        zrot += 10;
         break;
     default:
         break;
