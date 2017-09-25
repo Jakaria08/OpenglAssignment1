@@ -19,17 +19,17 @@ float xtrans = 0.0;
 float ytrans = 0.0;
 float ztrans = 0.0;
 
+int xrot = 0;
+int yrot = 0;
+int zrot = 0;
+
 float xtransCam = 0.0;
 float ytransCam = 0.0;
 float ztransCam = 0.0;
 
-int xrotCam = 0.0;
-int yrotCam = 0.0;
-int zrotCam = 0.0;
-
-int xrot = 0.0;
-int yrot = 0.0;
-int zrot = 0.0;
+int xrotCam = 0;
+int yrotCam = 0;
+int zrotCam = 0;
 
 
 float meanx=0.0;
@@ -44,8 +44,17 @@ float maxx=0.0;
 float maxy=0.0;
 float maxz=0.0;
 
+GLfloat matrix[16];
+
 vector<float> Indices;
 vector<vector<int> > Faces;
+
+
+static int fogMode = GL_LINEAR; // Fog mode.
+static float fogStart = 1.0; // Fog start z value.
+static float fogEnd = 5.0; // Fog end z value.
+
+// taken from the fog model of the reference textbook
 
 static unsigned int displayList; // List index.
 
@@ -66,7 +75,7 @@ int main(int argc, char **argv)
     glutInitContextVersion(2, 1);
     glutInitContextProfile(GLUT_COMPATIBILITY_PROFILE);
 
-    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH );
     glutInitWindowSize(500, 500);
     glutInitWindowPosition(100, 100);
     glutCreateWindow("ModelViewer");
@@ -101,6 +110,7 @@ void Orthographic_Projection()
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+
     glutPostRedisplay();
 
 }
@@ -116,6 +126,7 @@ void Perspective_Projection()
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+    glTranslatef(xtransCam, ytransCam, ztransCam);
     glutPostRedisplay();
 
 }
@@ -371,25 +382,60 @@ void setup(void)
 
 void drawScene(void)
 {
-    glClear(GL_COLOR_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
+    float fogColor[4] = {0.0, 0.0, 0.0, 0.5};
+
+    //////////////////// Fog ////////////////////////
+    glFogfv(GL_FOG_COLOR, fogColor);
+    glFogi(GL_FOG_MODE, fogMode);
+    glFogf(GL_FOG_START, fogStart);
+    glFogf(GL_FOG_END, fogEnd);
+    glHint(GL_FOG_HINT, GL_NICEST);
+    glDisable(GL_FOG);
+
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
     glLoadIdentity();
     glColor3f(1.0, 1.0, 1.0);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glTranslatef(xtransCam, 0.0, 0.0);
+    glTranslatef(0.0, ytransCam, 0.0);
+    glTranslatef(0.0, 0.0, ztransCam);
+
+   // glTranslatef(0,0,1);
+    glRotatef(xrotCam,1.0,0.0,0.0);
+   // glTranslatef(0,0,-1);
+   // glTranslatef(0,0,1);
+    glRotatef(yrotCam,0.0,1.0,0.0);
+    //glTranslatef(0,0,-1);
+    //glTranslatef(0,0,1);
+    glRotatef(zrotCam,0.0,0.0,1.0);
+    //glTranslatef(0,0,-1);
+    gluLookAt(0, 0, 1.0, 0, 0, 0, 0, 1, 0);
+
     glTranslatef(0.0, 0.0, -10.0);
+
     glTranslatef(xtrans, 0.0, 0.0);
     glTranslatef(0.0, ytrans, 0.0);
     glTranslatef(0.0, 0.0, ztrans);
     glRotatef(xrot,1.0,0.0,0.0);
     glRotatef(yrot,0.0,1.0,0.0);
     glRotatef(zrot,0.0,0.0,1.0);
+
+
+    //glTranslatef(xtransCam, ytransCam, ztransCam);
+
     glCallList(displayList);
-    glFlush();
+    glutSwapBuffers();
     glutPostRedisplay();
 }
 
 void resize(int w, int h)
 {
     glViewport(0, 0, w, h);
+
     Orthographic_Projection();
 }
 
@@ -399,7 +445,7 @@ void keyInput(unsigned char key, int x, int y)
     switch(key)
     {
     // Press escape to exit.
-    case 27:
+    case 'q':
         exit(0);
         break;
     case 'w':
@@ -448,20 +494,46 @@ void keyInput(unsigned char key, int x, int y)
         ytransCam += 0.1;
         break;
     case 'z':
-        ytransCam -= 0.1;
+        ztransCam -= 0.1;
         break;
     case 'Z':
-        ytransCam += 0.1;
+        ztransCam += 0.1;
         break;
+    case 't':
+        xrotCam -= 1;
+        break;
+    case 'T':
+        xrotCam += 1;
+        break;
+    case 'a':
+        yrotCam -= 1;
+        break;
+    case 'A':
+        yrotCam += 1;
+        break;
+    case 'l':
+        zrotCam -= 1;
+        break;
+    case 'L':
+        zrotCam += 1;
+        break;
+    case 'f':
+		glDisable(GL_FOG);
+		break;
+	case 'F':
+		glEnable(GL_FOG);
+		break;
     default:
         break;
+
+        glutPostRedisplay();
 
     }
 }
 
 void Arrowkeys(int key, int x, int y)
 {
-switch(key)
+    switch(key)
     {
     // Press escape to exit.
     case 27:
