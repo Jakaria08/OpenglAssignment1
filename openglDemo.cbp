@@ -35,6 +35,7 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="CameraMovement.cpp" />
 		<Unit filename="main.cpp">
 			<Option compiler="gcc" use="0" buildCommand="g++ square.cpp -o square -lGL -lGLU -lGLEW -lglut -lm\n-Wno-write-strings" />
 		</Unit>

@@ -15,6 +15,9 @@ using namespace std;
 string line;
 string value;
 
+int Ortho=1;
+int Persp=0;
+
 float xtrans = 0.0;
 float ytrans = 0.0;
 float ztrans = 0.0;
@@ -44,15 +47,17 @@ float maxx=0.0;
 float maxy=0.0;
 float maxz=0.0;
 
-GLfloat matrix[16];
+
+GLfloat modelMatrix[16];
 
 vector<float> Indices;
 vector<vector<int> > Faces;
 
 
 static int fogMode = GL_LINEAR; // Fog mode.
-static float fogStart = 1.0; // Fog start z value.
-static float fogEnd = 5.0; // Fog end z value.
+static float fogStart = 10.0; // Fog start z value.
+static float fogEnd = 20.0; // Fog end z value.
+static float RotModel[16];
 
 // taken from the fog model of the reference textbook
 
@@ -67,6 +72,10 @@ int readFile(char* object); // Loader Function
 void outputObject();
 void Orthographic_Projection();
 void Perspective_Projection();
+void RotationMX(int angle);
+void RotationMY(int angle);
+void RotationMZ(int angle);
+
 
 int main(int argc, char **argv)
 {
@@ -99,6 +108,69 @@ int main(int argc, char **argv)
     glutMainLoop();
 }
 
+
+void RotationMX(int angle)
+{
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadMatrixf(RotModel);
+	glRotatef(angle,1,0,0);
+	glGetFloatv(GL_MODELVIEW_MATRIX, RotModel);
+	glPopMatrix();
+}
+
+void RotationMY(int angle)
+{
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadMatrixf(RotModel);
+	glRotatef(angle,0,1,0);
+	glGetFloatv(GL_MODELVIEW_MATRIX, RotModel);
+	glPopMatrix();
+}
+
+void RotationMZ(int angle)
+{
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadMatrixf(RotModel);
+	glRotatef(angle,0,0,1);
+	glGetFloatv(GL_MODELVIEW_MATRIX, RotModel);
+	glPopMatrix();
+}
+
+void TranslationMX(float transMX)
+{
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadMatrixf(RotModel);
+	glTranslatef(transMX,0,0);
+	glGetFloatv(GL_MODELVIEW_MATRIX, RotModel);
+	glPopMatrix();
+}
+
+void TranslationMY(float transMY)
+{
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadMatrixf(RotModel);
+    glTranslatef(0,transMY,0);
+	glGetFloatv(GL_MODELVIEW_MATRIX, RotModel);
+	glPopMatrix();
+}
+
+void TranslationMZ(float transMZ)
+{
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadMatrixf(RotModel);
+	glTranslatef(0,0,transMZ);
+	glGetFloatv(GL_MODELVIEW_MATRIX, RotModel);
+	glPopMatrix();
+}
+
+
+
 void Orthographic_Projection()
 {
     cout<<"Orthographic Projection"<<"\n";
@@ -109,7 +181,7 @@ void Orthographic_Projection()
     glOrtho(-1.0, 1.0, -1.0, 1.0, 8, 100.0); // Orthographic Projection
 
     glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+    //glLoadIdentity();
 
     glutPostRedisplay();
 
@@ -125,8 +197,8 @@ void Perspective_Projection()
     glFrustum(-1.0, 1.0, -1.0, 1.0, 8, 100.0); // Orthographic Projection
 
     glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    glTranslatef(xtransCam, ytransCam, ztransCam);
+    //glLoadIdentity();
+    //glTranslatef(xtransCam, ytransCam, ztransCam);
     glutPostRedisplay();
 
 }
@@ -265,6 +337,17 @@ void setup(void)
     glClearColor(0.0, 0.0, 0.0, 0.0);
 
 
+    //Initial setup for Model Rotation
+
+    glMatrixMode(GL_MODELVIEW);
+	glTranslatef(0.0, 0.0, -10.0);
+	glGetFloatv(GL_MODELVIEW_MATRIX, RotModel);
+	glLoadIdentity();
+
+
+
+
+
 /////////////////////////////////////////// mean ///////////////////////////////////////
 
     // cout<<meanx<<" "<<meany<<" "<<meanz;
@@ -364,7 +447,7 @@ void setup(void)
 
         //glDrawElements(GL_TRIANGLE_FAN,GLsizei(Faces[m].size()),GL_INT,&Faces[m][0]);
 
-        glBegin(GL_TRIANGLE_STRIP); // drawing
+        glBegin(GL_TRIANGLE_FAN); // drawing
 
         for (unsigned int n=0; n<Faces[m].size(); n++)
         {
@@ -377,12 +460,12 @@ void setup(void)
     glEndList();
 
 
-
 }
 
 void drawScene(void)
 {
     glEnable(GL_DEPTH_TEST);
+
     float fogColor[4] = {0.0, 0.0, 0.0, 0.5};
 
     //////////////////// Fog ////////////////////////
@@ -393,41 +476,54 @@ void drawScene(void)
     glHint(GL_FOG_HINT, GL_NICEST);
     glDisable(GL_FOG);
 
-
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
     glLoadIdentity();
     glColor3f(1.0, 1.0, 1.0);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
     glTranslatef(xtransCam, 0.0, 0.0);
     glTranslatef(0.0, ytransCam, 0.0);
     glTranslatef(0.0, 0.0, ztransCam);
 
-   // glTranslatef(0,0,1);
+
     glRotatef(xrotCam,1.0,0.0,0.0);
-   // glTranslatef(0,0,-1);
-   // glTranslatef(0,0,1);
     glRotatef(yrotCam,0.0,1.0,0.0);
-    //glTranslatef(0,0,-1);
-    //glTranslatef(0,0,1);
     glRotatef(zrotCam,0.0,0.0,1.0);
-    //glTranslatef(0,0,-1);
+    // glTranslatef(0,0,-1);
     gluLookAt(0, 0, 1.0, 0, 0, 0, 0, 1, 0);
+    glMultMatrixf(RotModel);
 
-    glTranslatef(0.0, 0.0, -10.0);
-
-    glTranslatef(xtrans, 0.0, 0.0);
-    glTranslatef(0.0, ytrans, 0.0);
-    glTranslatef(0.0, 0.0, ztrans);
-    glRotatef(xrot,1.0,0.0,0.0);
-    glRotatef(yrot,0.0,1.0,0.0);
-    glRotatef(zrot,0.0,0.0,1.0);
+    //glTranslatef(0.0, 0.0, -10.0);
 
 
     //glTranslatef(xtransCam, ytransCam, ztransCam);
 
+
+
+    //glTranslatef(xtrans, 0.0, 0.0);
+    //glTranslatef(0.0, ytrans, 0.0);
+    //glTranslatef(0.0, 0.0, ztrans);
+    // glRotatef(xrot,1.0,0.0,0.0);
+    // glRotatef(yrot,0.0,1.0,0.0);
+    //  glRotatef(zrot,0.0,0.0,1.0);
+
     glCallList(displayList);
+
+    //glMatrixMode(GL_MODELVIEW);
+    //glPushMatrix();
+    //glLoadIdentity();
+
+// transformations go here
+
+
+
+
+    // glGetFloatv (GL_MODELVIEW, modelMatrix);
+    //glMultMatrixf(modelMatrix);
+    //glPopMatrix();
+
     glutSwapBuffers();
     glutPostRedisplay();
 }
@@ -436,7 +532,11 @@ void resize(int w, int h)
 {
     glViewport(0, 0, w, h);
 
-    Orthographic_Projection();
+    if(Ortho == 1)
+        Orthographic_Projection();
+
+    else
+        Perspective_Projection();
 }
 
 
@@ -452,34 +552,46 @@ void keyInput(unsigned char key, int x, int y)
         outputObject();
         break;
     case 'v':
+        Ortho = 1;
+        Persp = 0;
         Orthographic_Projection();
         break;
     case 'V':
+        Persp =1;
+        Ortho =0;
         Perspective_Projection();
         break;
     case 'n':
         ztrans -= 0.1;
+        TranslationMZ(-0.1);
         break;
     case 'N':
         ztrans += 0.1;
+        TranslationMZ(0.1);
         break;
     case 'p':
         xrot -= 10;
+        RotationMX(-10);
         break;
     case 'P':
         xrot += 10;
+        RotationMX(10);
         break;
     case 'y':
         yrot -= 10;
+        RotationMY(-10);
         break;
     case 'Y':
         yrot += 10;
+        RotationMY(10);
         break;
     case 'r':
         zrot -= 10;
+        RotationMZ(-10);
         break;
     case 'R':
         zrot += 10;
+        RotationMZ(10);
         break;
     case 'd':
         xtransCam -= 0.1;
@@ -518,11 +630,11 @@ void keyInput(unsigned char key, int x, int y)
         zrotCam += 1;
         break;
     case 'f':
-		glDisable(GL_FOG);
-		break;
-	case 'F':
-		glEnable(GL_FOG);
-		break;
+        glDisable(GL_FOG);
+        break;
+    case 'F':
+        glEnable(GL_FOG);
+        break;
     default:
         break;
 
@@ -541,15 +653,19 @@ void Arrowkeys(int key, int x, int y)
         break;
     case GLUT_KEY_LEFT:
         xtrans -= 0.1;
+        TranslationMX(-0.1);
         break;
     case GLUT_KEY_RIGHT:
         xtrans += 0.1;
+        TranslationMX(0.1);
         break;
     case GLUT_KEY_DOWN:
         ytrans -= 0.1;
+        TranslationMY(-0.1);
         break;
     case GLUT_KEY_UP:
         ytrans += 0.1;
+        TranslationMY(0.1);
         break;
     default:
         break;
