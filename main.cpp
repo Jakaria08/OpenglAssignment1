@@ -111,65 +111,65 @@ int main(int argc, char **argv)
 
 void RotationMX(int angle)
 {
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadMatrixf(RotModel);
-	glRotatef(angle,1,0,0);
-	glGetFloatv(GL_MODELVIEW_MATRIX, RotModel);
-	glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadMatrixf(RotModel);
+    glRotatef(angle,1,0,0);
+    glGetFloatv(GL_MODELVIEW_MATRIX, RotModel);
+    glPopMatrix();
+
+    // get the idea from this link: http://in.somniac.me/2010/03/using-opengl-to-calculate-transformations/
 }
 
 void RotationMY(int angle)
 {
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadMatrixf(RotModel);
-	glRotatef(angle,0,1,0);
-	glGetFloatv(GL_MODELVIEW_MATRIX, RotModel);
-	glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadMatrixf(RotModel);
+    glRotatef(angle,0,1,0);
+    glGetFloatv(GL_MODELVIEW_MATRIX, RotModel);
+    glPopMatrix();
 }
 
 void RotationMZ(int angle)
 {
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadMatrixf(RotModel);
-	glRotatef(angle,0,0,1);
-	glGetFloatv(GL_MODELVIEW_MATRIX, RotModel);
-	glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadMatrixf(RotModel);
+    glRotatef(angle,0,0,1);
+    glGetFloatv(GL_MODELVIEW_MATRIX, RotModel);
+    glPopMatrix();
 }
 
 void TranslationMX(float transMX)
 {
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadMatrixf(RotModel);
-	glTranslatef(transMX,0,0);
-	glGetFloatv(GL_MODELVIEW_MATRIX, RotModel);
-	glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadMatrixf(RotModel);
+    glTranslatef(transMX,0,0);
+    glGetFloatv(GL_MODELVIEW_MATRIX, RotModel);
+    glPopMatrix();
 }
 
 void TranslationMY(float transMY)
 {
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadMatrixf(RotModel);
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadMatrixf(RotModel);
     glTranslatef(0,transMY,0);
-	glGetFloatv(GL_MODELVIEW_MATRIX, RotModel);
-	glPopMatrix();
+    glGetFloatv(GL_MODELVIEW_MATRIX, RotModel);
+    glPopMatrix();
 }
 
 void TranslationMZ(float transMZ)
 {
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadMatrixf(RotModel);
-	glTranslatef(0,0,transMZ);
-	glGetFloatv(GL_MODELVIEW_MATRIX, RotModel);
-	glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadMatrixf(RotModel);
+    glTranslatef(0,0,transMZ);
+    glGetFloatv(GL_MODELVIEW_MATRIX, RotModel);
+    glPopMatrix();
 }
-
-
 
 void Orthographic_Projection()
 {
@@ -340,9 +340,9 @@ void setup(void)
     //Initial setup for Model Rotation
 
     glMatrixMode(GL_MODELVIEW);
-	glTranslatef(0.0, 0.0, -10.0);
-	glGetFloatv(GL_MODELVIEW_MATRIX, RotModel);
-	glLoadIdentity();
+    glTranslatef(0.0, 0.0, -10.0);
+    glGetFloatv(GL_MODELVIEW_MATRIX, RotModel);
+    glLoadIdentity();
 
 
 
@@ -632,8 +632,14 @@ void keyInput(unsigned char key, int x, int y)
     case 'f':
         glDisable(GL_FOG);
         break;
-    case 'F':
-        glEnable(GL_FOG);
+    case 'x':
+        glPushMatrix();
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+        glTranslatef(0.0, 0.0, -10.0);
+        glGetFloatv(GL_MODELVIEW_MATRIX, RotModel);
+        glPopMatrix();
+        xtransCam=ytransCam=ztransCam=xrotCam=yrotCam=zrotCam=0.0;
         break;
     default:
         break;
